@@ -60,6 +60,11 @@ app.get("/balance/:address", (req, res) => {
   res.send({ balance });
 });
 
+app.get("/keys", (req, res) => {
+
+  res.send(keysPairs);
+});
+
 app.post("/send", (req, res) => {
   const { sender, recipient, amount } = req.body;
 

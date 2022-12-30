@@ -80,6 +80,50 @@ input {
   }
 }
 
+.keys {
+  display: flex;
+  flex-direction: column;
+  overflow-x:auto;
+
+  h2{
+    font-size: 1.2rem;
+  }
+
+  table{
+    border: 1px solid #cbd5e0;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    border-radius: 0.375rem;
+    width: max-content;
+
+    thead{
+      background-color: #e2e8f0;
+    }
+
+    tbody {
+      > :nth-child(2){
+        background-color: #f4f6f8;
+      }
+
+      td:hover{
+        cursor: pointer;
+        background-color: lightgrey;
+      }
+    }
+
+    tr{
+      text-align: left;
+    }
+
+    th, td{
+      padding: 8px;
+    }
+  }
+
+  > :last-child{
+    font-style: italic;
+  }
+}
+
 .transfer {
   display: flex;
   flex-direction: column;

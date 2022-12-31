@@ -127,4 +127,25 @@ input {
 .transfer {
   display: flex;
   flex-direction: column;
+
+  button{
+    display: flex;
+    align-items: center;
+    border: 0;
+  }
+
+  svg{
+    visibility: hidden;
+    animation: loading infinite 1s linear;
+  }
+
+  .show{
+    visibility: visible;
+  }
 }
+
+@keyframes loading{
+  from {transform: rotate(0deg);}
+  to {transform: rotate(360deg);}
+}
+

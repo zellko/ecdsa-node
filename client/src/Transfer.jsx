@@ -1,16 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import server from "./server";
 import * as secp from "ethereum-cryptography/secp256k1";
 import {keccak256} from "ethereum-cryptography/keccak";
 import  {utf8ToBytes}  from "ethereum-cryptography/utils";
 
 
+
 function Transfer({ address, setBalance }) {
   const [sendAmount, setSendAmount] = useState("");
   const [recipient, setRecipient] = useState("");
   const [privateKey, setPrivateKey] = useState("");
+  const [loadingIconClass, setLoadingIconClass] = useState("");
 
   const setValue = (setter) => (evt) => setter(evt.target.value);
+
 
   function hashMessage(message) {
     console.log("Hashing message")
@@ -53,6 +56,9 @@ function Transfer({ address, setBalance }) {
     // Ensure that fields are filled
     // TODO
 
+    // Show loading animation
+    setLoadingIconClass("show")
+
     // Shape message and Stringify it
     const message = {
       sender: address,
@@ -69,7 +75,10 @@ function Transfer({ address, setBalance }) {
     console.log(signature);
 
     // Brodact transaction to the network
-    broadcastTransaction();
+    await broadcastTransaction();
+
+    // Hide loading animation
+    setLoadingIconClass("")
   }
 
   async function transfer(evt) {
@@ -122,7 +131,7 @@ function Transfer({ address, setBalance }) {
 
       <button type="button" className="button" value="Sign & Transfer"  onClick={transferHelper}> 
         Sign & Transfer
-        <svg style={{width: "24px", height:"24px"}} viewBox="0 0 24 24">
+        <svg style={{width: "24px", height:"24px"}} viewBox="0 0 24 24" className={loadingIconClass}>
           <path fill="currentColor" d="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z" />
         </svg>
       </button>

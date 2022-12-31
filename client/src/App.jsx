@@ -18,13 +18,16 @@ function App() {
     async function getKeys() {
       const data = await server.get(`keys/`);
 
-      console.log(data.data)
       setKeys(data.data)
     }
 
     getKeys();
-
   }, [])
+
+  function getWalletKeys(address) {
+    if (!keys) return
+    return keys[address] || 0;
+  }
 
   return (
     <div className="app">
@@ -34,7 +37,11 @@ function App() {
         address={address}
         setAddress={setAddress}
       />
-      <Transfer setBalance={setBalance} address={address} />
+      <Transfer 
+      setBalance={setBalance} 
+      address={address} 
+      walletKeys = {getWalletKeys(address)}
+      />
       <KeysDisplay  keys={keys}/>
     </div>
   );

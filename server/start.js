@@ -9,7 +9,7 @@ Functions to generate random public / private keys pairs...
 ******/
 
 function getAddress(publicKey) {
-    // Get 0x usable address from the pub key
+    // Get 0x address from the pub key
     const pubKeyWithoutFormat = publicKey.slice(1); // Remove first byte1
     const hash = keccak256(pubKeyWithoutFormat); // Hash PubKey
     const addressHex =  hash.slice(-20); // Keep only the last 20 bytes
@@ -29,7 +29,10 @@ async function generateRandomPKey() {
   
       const privateKeyToHex = secp.utils.bytesToHex(privateKey); // Convert private key to Hex
   
-      keysPairs[`${address}`] = privateKeyToHex; // Set balance object with keys data and some blance
+      keysPairs[`${address}`] = {
+        privateKey: privateKeyToHex,
+        pubKey: secp.utils.bytesToHex(pubKey)
+      }; // Set balance object with keys data and some blance
     }
 
     return keysPairs;

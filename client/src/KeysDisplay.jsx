@@ -25,15 +25,15 @@ function KeysDisplay({ keys }) {
                     <tbody>
                         <tr>
                           <td onClick={copyKeyToClipboard}>{publicKeys[0]}</td>
-                          <td onClick={copyKeyToClipboard}>{keys[publicKeys[0]]}</td>
+                          <td onClick={copyKeyToClipboard}>{keys[publicKeys[0]].privateKey}</td>
                         </tr>
                         <tr>
                           <td onClick={copyKeyToClipboard}>{publicKeys[1]}</td>
-                          <td onClick={copyKeyToClipboard}>{keys[publicKeys[1]]}</td>
+                          <td onClick={copyKeyToClipboard}>{keys[publicKeys[1]].privateKey}</td>
                         </tr>
                         <tr>
                           <td onClick={copyKeyToClipboard}>{publicKeys[2]}</td>
-                          <td onClick={copyKeyToClipboard}>{keys[publicKeys[2]]}</td>
+                          <td onClick={copyKeyToClipboard}>{keys[publicKeys[2]].privateKey}</td>
                         </tr>
                   </tbody>
                 </table>

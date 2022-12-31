@@ -68,13 +68,12 @@ app.get("/balance/:address", (req, res) => {
 });
 
 app.get("/keys", (req, res) => {
-
   res.send(keysPairs);
 });
 
 app.post("/send",async (req, res) => {
   const { message, messageHash, signature } = req.body;
-  const { sender, recipient, amount } = message
+  const { sender, recipient, amount, senderPubKey } = message
   const [sig, recoveryBit] = signature;
 
   console.log("Network received transactions datas")
@@ -99,18 +98,17 @@ app.post("/send",async (req, res) => {
   console.log("Message and Hash are matching")
 
   // Server check if the public address is matching sender address
-  const publicKey = await crypto.recoverKey(messageHashArray, sigArray, recoveryBit);
-  const publicKeyToAddress = crypto.getAddress(publicKey);
+  const derivatePublicKey = await crypto.recoverKey(messageHashArray, sigArray, recoveryBit);
 
-  if ( sender !== publicKeyToAddress){
-    res.status(400).send({ message: "Sender addresse is not matching signed transaction address!" });
+  if (senderPubKey !== derivatePublicKey){
+    res.status(400).send({ message: "Sender pubkey do not match pubkey derivated from signature!" });
     return
   }
 
   console.log("Pubkey and sender are matching")
 
   // Server check if the signature is valid. Q: Is this check needed ?
-  const isSignatureValid = await crypto.checkSignature(sigArray, messageHashArray, publicKey);
+  const isSignatureValid = await crypto.checkSignature(sigArray, messageHashArray, derivatePublicKey);
   if (!isSignatureValid){
     res.status(400).send({ message: "Invalid Signature!" });
     return

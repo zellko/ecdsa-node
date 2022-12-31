@@ -6,7 +6,7 @@ import  {utf8ToBytes}  from "ethereum-cryptography/utils";
 
 
 
-function Transfer({ address, setBalance }) {
+function Transfer({ address, setBalance, walletKeys }) {
   const [sendAmount, setSendAmount] = useState("");
   const [recipient, setRecipient] = useState("");
   const [privateKey, setPrivateKey] = useState("");
@@ -54,10 +54,12 @@ function Transfer({ address, setBalance }) {
     setLoadingIconClass("show")
 
     // Shape message and Stringify it
+    
     const message = {
       sender: address,
       amount: parseInt(sendAmount),
       recipient,
+      senderPubKey: walletKeys.pubKey,
     };
     const messageToString = JSON.stringify(message);
 

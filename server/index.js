@@ -2,6 +2,9 @@ const secp = require("ethereum-cryptography/secp256k1");
 const { keccak256 } = require("ethereum-cryptography/keccak");
 const { utf8ToBytes } = require("ethereum-cryptography/utils");
 
+const start = require("./start");
+const crypto = require("./crypto");
+
 const express = require("express");
 const app = express();
 const cors = require("cors");
@@ -12,42 +15,11 @@ app.use(cors());
 app.use(express.json());
 
 /******
-Functions to generate random public / private keys pairs...
-... and to load them with virtual token.
-
-!!! For the purpose of this exercice only !!!
+Functions to generate some keys pair at start of the server
 ******/
-
-function getAddress(publicKey) {
-  // Get 0x usable address from the pub key
-  const pubKeyWithoutFormat = publicKey.slice(1); // Remove first byte1
-  const hash = keccak256(pubKeyWithoutFormat); // Hash PubKey
-  const addressHex =  hash.slice(-20); // Keep only the last 20 bytes
-
-  const address = `0x${secp.utils.bytesToHex(addressHex)}` // Final usable address
-  return address;
-}
-
-async function generateRandomPKey() {
-  // This function generate three random keys pairs
-
-  for (let index = 0; index < 3; index++) {
-    const privateKey = secp.utils.randomPrivateKey(); // Generate private key
-    const pubKey = await secp.getPublicKey(privateKey); // Get public key from the private key
-    const address = getAddress(pubKey); // Get address (0x...) from the public key
-
-    const privateKeyToHex = secp.utils.bytesToHex(privateKey); // Convert private key to Hex
-
-    keysPairs[`${address}`] = privateKeyToHex; // Set balance object with keys data and some blance
-  }
-
-  console.log(keysPairs);
-  setBalance(); 
-}
 
 function setBalance() {
   // Provide a balance to each generated keys
-
   const addressList = Object.keys(keysPairs);
 
   for (let index = 0; index < addressList.length; index++) {
@@ -55,29 +27,17 @@ function setBalance() {
   }
 }
 
-const keysPairs = {};
+async function onStart() {
+  // When the server is start, generate random private key...
+  // .. and load them with some token
+
+  keysPairs = await start.generateRandomPKey(); // Generate three keys pairs at the start of the server
+  setBalance(keysPairs);  
+}
+
 const balances = {};
-generateRandomPKey(); // Generate three keys pairs at the start of the server
-
-
-/******
-Functions to check broadcasted transaction of the network
-******/
-
-function hashMessage(message) {
-  const messageToBytes = utf8ToBytes(message);
-  return keccak256(messageToBytes); 
-}
-
-async function recoverKey(hash, signature, recoveryBit) {
-  const pubKey = await secp.recoverPublicKey(hash, signature, recoveryBit);
-  return pubKey;
-}
-
-async function checkSignature(signature, hash, publicKey) {
-  const isSigned = secp.verify(signature, hash, publicKey, {strict: true});
-  return isSigned;
-}
+let keysPairs = {};
+onStart();
 
 /******
 Functions to convert data from object to uint8 array. 
@@ -130,7 +90,7 @@ app.post("/send",async (req, res) => {
 
   // Server check if the message and message hash are the same. 
   const messageHashToString = JSON.stringify(messageHashArray);
-  const messageToString = JSON.stringify(hashMessage(JSON.stringify(message)));
+  const messageToString = JSON.stringify(crypto.hashMessage(JSON.stringify(message)));
 
   if ( messageHashToString !== messageToString){
       res.status(400).send({ message: "Message and message hash are not matching!" });
@@ -139,8 +99,8 @@ app.post("/send",async (req, res) => {
   console.log("Message and Hash are matching")
 
   // Server check if the public address is matching sender address
-  const publicKey = await recoverKey(messageHashArray, sigArray, recoveryBit);
-  const publicKeyToAddress = getAddress(publicKey);
+  const publicKey = await crypto.recoverKey(messageHashArray, sigArray, recoveryBit);
+  const publicKeyToAddress = crypto.getAddress(publicKey);
 
   if ( sender !== publicKeyToAddress){
     res.status(400).send({ message: "Sender addresse is not matching signed transaction address!" });
@@ -150,7 +110,7 @@ app.post("/send",async (req, res) => {
   console.log("Pubkey and sender are matching")
 
   // Server check if the signature is valid. Q: Is this check needed ?
-  const isSignatureValid = await checkSignature(sigArray, messageHashArray, publicKey);
+  const isSignatureValid = await crypto.checkSignature(sigArray, messageHashArray, publicKey);
   if (!isSignatureValid){
     res.status(400).send({ message: "Invalid Signature!" });
     return

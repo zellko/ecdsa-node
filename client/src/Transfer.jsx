@@ -15,46 +15,40 @@ function Transfer({ address, setBalance }) {
   const setValue = (setter) => (evt) => setter(evt.target.value);
 
 
+  async function broadcastTransaction(message, messageHash, signature) {
+    console.log("Brodacasting message");
+
+    try {
+      const {
+        data: { balance },
+      } = await server.post(`send`, {
+        message,
+        messageHash,
+        signature,
+      });
+
+      setBalance(balance);
+    } catch (ex) {
+      alert(ex.response.data.message);
+    }
+  }
+
   function hashMessage(message) {
     console.log("Hashing message")
     const messageToBytes = utf8ToBytes(message);
     return keccak256(messageToBytes); 
   }
 
-  async function broadcastTransaction(message, signature) {
-    console.log("Brodacasting message")
-
-    /*
-    try {
-      const {
-        data: { balance },
-      } = await server.post(`send`, {
-        sender: address,
-        amount: parseInt(sendAmount),
-        recipient,
-      });
-      setBalance(balance);
-    } catch (ex) {
-      alert(ex.response.data.message);
-    }
-  */
-
-  }
-
-  async function signMessage(message) {
-    console.log("Signing message")
-
+  async function signMessage(hash) {
     // Signing message with private key
-    const result = await secp.sign(message, privateKey, {recovered: true});
-
+    console.log("Signing message")
+    const result = await secp.sign(hash, privateKey, {recovered: true});
     return result
   }
 
   async function transferHelper(evt) {
     evt.preventDefault();
     console.log("Transfer Helper Function")
-    // Ensure that fields are filled
-    // TODO
 
     // Show loading animation
     setLoadingIconClass("show")
@@ -72,10 +66,9 @@ function Transfer({ address, setBalance }) {
 
     // Sign message
     const signature = await signMessage(messageHash);
-    console.log(signature);
-
+    
     // Brodact transaction to the network
-    await broadcastTransaction();
+    await broadcastTransaction(message, messageHash, signature);
 
     // Hide loading animation
     setLoadingIconClass("")
@@ -99,7 +92,7 @@ function Transfer({ address, setBalance }) {
   }
 
   return (
-    <form className="container transfer" onSubmit={transfer}>
+    <form className="container transfer">
       <h1>Send Transaction</h1>
 
       <label>
@@ -135,7 +128,6 @@ function Transfer({ address, setBalance }) {
           <path fill="currentColor" d="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z" />
         </svg>
       </button>
-      <input type="submit" className="button" value="Broadcast"  disabled={true}/>
     </form>
   );
 }

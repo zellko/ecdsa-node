@@ -29,3 +29,9 @@ The server folder contains a node.js server using [express](https://expressjs.co
 The application should connect to the default server port (3042) automatically! 
 
 _Hint_ - Use [nodemon](https://www.npmjs.com/package/nodemon) instead of `node` to automatically restart the server on any changes.
+
+### Note from student
+
+For this project, I first thought about the logic I wanted to implement. For this, I made the high level chart below that I used as a reference for the programation. 
+
+![flow chart](hl_flow_chart.png)
